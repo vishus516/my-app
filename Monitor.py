@@ -1,4 +1,5 @@
 # cpu_monitor.py
+#test A simple CPU usage monitor that alerts when usage exceeds a defined threshold.
 import time
 import psutil
 import smtplib    # optional: for email alert
