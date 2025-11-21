@@ -2,7 +2,6 @@
 #test A simple CPU usage monitor that alerts when usage exceeds a defined threshold.
 import time
 import psutil
-import smtplib    # optional: for email alert
 from datetime import datetime
 
 THRESHOLD = 80.0   # percent
@@ -15,9 +14,9 @@ def alert(msg):
 
 def main():
     while True:
-        cpu = psutil.cpu_percent(interval=1)   # blocking 1s average
+        cpu = psutil.cpu_percent(interval=1)   # blocking 1s average.
         if cpu > THRESHOLD:
-            alert(f"CPU usage high: {cpu}%")
+            alert(f"CPU usage high real: {cpu}%")
         time.sleep(INTERVAL - 1)
 
 if __name__ == "__main__":
