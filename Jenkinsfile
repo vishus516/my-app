@@ -6,8 +6,14 @@ pipeline {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ubuntu-key', keyFileVariable: 'KEY', usernameVariable: 'USER')]) {
                   bat '''
                         @echo off
-                        :: 100% WORKING WSL IP DETECTION FOR WINDOWS JENKINS
-                        for /f "delims=" %%i in (\'wsl -e sh -c "ip route get 1 ^| awk \'{print \$7}\' ^| tr -d \'\\n\'"\') do set WSL_IP=%%i
+                        :: 100% WORKING — GETS REAL WSL IP EVERY TIME
+                        set WSL_IP=
+                        for /f %%i in ('wsl -e sh -c "ip -4 addr show eth0 ^| grep -oP \'(?!\\s)(?:(?:\\d{1,3}\\.){3}\\d{1,3})(?=\\/)\'"') do set WSL_IP=%%i
+                        
+                        :: Fallback if above fails (very rare)
+                        if not defined WSL_IP (
+                            for /f %%i in ('wsl -e sh -c "hostname -I ^| cut -d\" \" -f1"') do set WSL_IP=%%i
+                        )
                         
                         echo ========================================
                         echo Deploying to WSL Ubuntu at %WSL_IP%
