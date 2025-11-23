@@ -15,8 +15,8 @@ pipeline {
                     # Kill old script
                     ssh -i "$env:KEY" -o StrictHostKeyChecking=no $env:USER@$WSL_IP "pkill -f cpu_monitor.py || true"
 
-                    # Copy new file
-                    scp -i "$env:KEY" -o StrictHostKeyChecking=no cpu_monitor.py $env:USER@$WSL_IP:/home/vishu/auto-deploy/
+                    # Copy new file (quoted destination for PowerShell)
+                    scp -i "$env:KEY" -o StrictHostKeyChecking=no cpu_monitor.py "$env:USER@$WSL_IP:/home/vishu/auto-deploy/"
 
                     # Start new version
                     ssh -i "$env:KEY" -o StrictHostKeyChecking=no $env:USER@$WSL_IP "nohup python3 /home/vishu/auto-deploy/cpu_monitor.py > /home/vishu/auto-deploy/cpu.log 2>&1 &"
