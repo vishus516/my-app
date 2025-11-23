@@ -4,29 +4,27 @@ pipeline {
         stage('Deploy to WSL Ubuntu') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ubuntu-key', keyFileVariable: 'KEY', usernameVariable: 'USER')]) {
-                  bat '''
-                        @echo off
-                        :: 100% WORKING — GETS REAL WSL IP EVERY TIME
-                        set WSL_IP=
-                        for /f %%i in ('wsl -e sh -c "ip -4 addr show eth0 ^| grep -oP \'(?!\\s)(?:(?:\\d{1,3}\\.){3}\\d{1,3})(?=\\/)\'"') do set WSL_IP=%%i
-                        
-                        :: Fallback if above fails (very rare)
-                        if not defined WSL_IP (
-                            for /f %%i in ('wsl -e sh -c "hostname -I ^| cut -d\" \" -f1"') do set WSL_IP=%%i
-                        )
-                        
-                        echo ========================================
-                        echo Deploying to WSL Ubuntu at %WSL_IP%
-                        echo ========================================
-                        
-                        ssh -i "%KEY%" -o StrictHostKeyChecking=no %USER%@%WSL_IP% "pkill -f cpu_monitor.py || true"
-                        scp -i "%KEY%" -o StrictHostKeyChecking=no cpu_monitor.py %USER%@%WSL_IP%:/home/vishu/auto-deploy/
-                        ssh -i "%KEY%" -o StrictHostKeyChecking=no %USER%@%WSL_IP% "nohup python3 /home/vishu/auto-deploy/cpu_monitor.py > /home/vishu/auto-deploy/cpu.log 2>&1 &"
-                        
-                        echo ========================================
-                        echo DEPLOYED SUCCESSFULLY TO UBUNTU WSL!
-                        echo ========================================
-                        '''
+                  powershell '''
+                    # Get WSL IP using PowerShell (100% reliable)
+                    $WSL_IP = (wsl hostname -I).Split(" ")[0]
+
+                    Write-Host "============================================"
+                    Write-Host "Deploying to WSL Ubuntu at $WSL_IP"
+                    Write-Host "============================================"
+
+                    # Kill old script
+                    ssh -i "$env:KEY" -o StrictHostKeyChecking=no $env:USER@$WSL_IP "pkill -f cpu_monitor.py || true"
+
+                    # Copy new file
+                    scp -i "$env:KEY" -o StrictHostKeyChecking=no cpu_monitor.py $env:USER@$WSL_IP:/home/vishu/auto-deploy/
+
+                    # Start new version
+                    ssh -i "$env:KEY" -o StrictHostKeyChecking=no $env:USER@$WSL_IP "nohup python3 /home/vishu/auto-deploy/cpu_monitor.py > /home/vishu/auto-deploy/cpu.log 2>&1 &"
+
+                    Write-Host "============================================"
+                    Write-Host "DEPLOYED SUCCESSFULLY TO UBUNTU WSL!"
+                    Write-Host "============================================"
+                    '''
                 }
             }
         }
