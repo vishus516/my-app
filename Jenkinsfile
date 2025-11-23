@@ -13,7 +13,7 @@ pipeline {
                     Write-Host "============================================"
 
                     # Kill old script
-                    ssh -i "$env:KEY" -o StrictHostKeyChecking=no "${env:USER}@$WSL_IP" "pkill -f cpu_monitor.py || true"
+                    ssh -i "$env:KEY" -o StrictHostKeyChecking=no "${env:USER@$WSL_IP}" "pkill -f cpu_monitor.py || true"
 
                     # Copy new file (fixed path parsing with ${})
                     scp -i "$env:KEY" -o StrictHostKeyChecking=no cpu_monitor.py "${env:USER}@$WSL_IP:/home/vishu/auto-deploy/"
