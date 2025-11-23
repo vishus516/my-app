@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Deploy to WSL Ubuntu') {
             steps {
-                withCredentials([sshUserPrivateKey(credentialsId: 'wsl-deploy-key', keyFileVariable: 'KEY', usernameVariable: 'USER')]) {
+                withCredentials([sshUserPrivateKey(credentialsId: 'ubuntu-key', keyFileVariable: 'KEY', usernameVariable: 'USER')]) {
                     sh '''
                     WSL_IP=$(hostname -I | awk "{print \$1}")
                     echo "Deploying to WSL at $WSL_IP"
