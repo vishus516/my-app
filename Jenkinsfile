@@ -6,11 +6,8 @@ pipeline {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ubuntu-key', keyFileVariable: 'KEY', usernameVariable: 'USER')]) {
                     bat '''
 @echo off
-set WSL_IP=
-for /f "delims=" %%i in ('wsl hostname -I 2^>nul') do (
-    echo %%i | findstr /r "^[0-9][0-9]*\\.[0-9][0-9]*\\.[0-9][0-9]*\\.[0-9][0-9]*" >nul
-    if not errorlevel 1 if not defined WSL_IP set "WSL_IP=%%i"
-)
+:: Get the first real IPv4 address from WSL
+for /f "tokens=*" %%i in ('wsl -e sh -c "hostname -I | awk \'{print \$1}\'"') do set WSL_IP=%%i
 
 if not defined WSL_IP (
     echo ERROR: Could not detect WSL IP
