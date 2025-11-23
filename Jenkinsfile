@@ -4,15 +4,10 @@ pipeline {
         stage('Deploy to WSL Ubuntu') {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ubuntu-key', keyFileVariable: 'KEY', usernameVariable: 'USER')]) {
-                    bat '''
+                   bat '''
 @echo off
-:: Get the first real IPv4 address from WSL
-for /f "tokens=*" %%i in ('wsl -e sh -c "hostname -I | awk \'{print \$1}\'"') do set WSL_IP=%%i
-
-if not defined WSL_IP (
-    echo ERROR: Could not detect WSL IP
-    exit 1
-)
+:: This is the ONLY command that works reliably on Windows Jenkins
+for /f %%i in ('wsl -e sh -c "hostname -I | cut -d\" \" -f1"') do set WSL_IP=%%i
 
 echo ========================================
 echo Deploying to WSL Ubuntu at %WSL_IP%
