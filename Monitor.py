@@ -2,6 +2,7 @@
 #test A simple CPU usage monitor that alerts when usage exceeds a defined threshold.
 import time
 import psutil
+import os
 from datetime import datetime
 
 THRESHOLD = 80.0   # percent
