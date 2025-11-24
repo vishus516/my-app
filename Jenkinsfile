@@ -5,29 +5,37 @@ pipeline {
             steps {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ubuntu-key', keyFileVariable: 'KEY', usernameVariable: 'USER')]) {
                   powershell '''
-                    # Get WSL IP using PowerShell (100% reliable)
-                    $WSL_IP = (wsl hostname -I).Split(" ")[0]
+                        # Get WSL IP (Windows → WSL)
+                        $WSL_IP = (wsl hostname -I).Split(" ")[0]
 
-                    # Build full destination string to avoid parsing errors
-                    $DEST = "${env:USER}@$WSL_IP:/home/vishu/auto-deploy/"
+                        # PowerShell CANNOT handle ${env:USER} — fix:
+                        # Jenkins provides username in $env:USER, NOT ${env:USER}
+                        $DestUser = $env:USER
+                        $Dest = "$DestUser@$WSL_IP:/home/vishu/auto-deploy/"
 
-                    Write-Host "============================================"
-                    Write-Host "Deploying to WSL Ubuntu at $WSL_IP"
-                    Write-Host "Destination: $DEST"
-                    Write-Host "============================================"
+                        Write-Host "============================================"
+                        Write-Host "Deploying to: $Dest"
+                        Write-Host "============================================"
 
-                    # Kill old script
-                    ssh -i "$env:KEY" -o StrictHostKeyChecking=no "${env:USER}@$WSL_IP" "pkill -f cpu_monitor.py || true"
+                        # Convert Windows key path to MSYS path for scp
+                        $KeyFile = $env:KEY
+                        if ($KeyFile -match '^[A-Z]:\\\\') {
+                            $drive = $KeyFile.Substring(0,1).ToLower()
+                            $rest = $KeyFile.Substring(2) -replace '\\\\','/'
+                            $KeyFile = "/$drive/$rest"
+                        }
 
-                    # Copy new file (using $DEST to fix colon parsing)
-                    scp -i "$env:KEY" -o StrictHostKeyChecking=no cpu_monitor.py "$DEST"
+                        # Run SCP to WSL
+                        $cmd = "scp -i `"$KeyFile`" -o StrictHostKeyChecking=no -r * $Dest"
+                        Write-Host "Running: $cmd"
+                        cmd.exe /c $cmd
 
-                    # Start new version
-                    ssh -i "$env:KEY" -o StrictHostKeyChecking=no "${env:USER}@$WSL_IP" "nohup python3 /home/vishu/auto-deploy/cpu_monitor.py > /home/vishu/auto-deploy/cpu.log 2>&1 &"
-
-                    Write-Host "============================================"
-                    Write-Host "DEPLOYED SUCCESSFULLY TO UBUNTU WSL!"
-                    Write-Host "============================================"
+                        if ($LASTEXITCODE -ne 0) {
+                            Write-Error "SCP failed with exit code $LASTEXITCODE"
+                            exit $LASTEXITCODE
+                        } else {
+                            Write-Host "Deployment completed successfully."
+                        }
                     '''
                 }
             }
