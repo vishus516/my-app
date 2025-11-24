@@ -9,6 +9,10 @@ pipeline {
                         Write-Host "DEBUG: Jenkins $env:USER = $env:USER"
                         Write-Host "DEBUG: Jenkins $env:KEY = $env:KEY (masked)"
 
+                        # Get the exact account name running the job (DOMAIN\\User or MACHINE\\User)
+                            $who = (cmd.exe /c whoami).Trim()
+                            Write-Host "Running as: $who"
+
                         # Get WSL IP (Windows → WSL)
                         $rawOutput = wsl -d Ubuntu hostname -I
                         Write-Host "DEBUG: Raw WSL IPs = $rawOutput"
