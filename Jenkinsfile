@@ -11,7 +11,7 @@ pipeline {
 
                         # Get WSL IP (Windows → WSL)
                         $WSL_IP = (wsl -d Ubuntu hostname -I).Split(" ")[0]
-                        Write-Host "DEBUG: Raw WSL IPs = (wsl hostname -I)"
+                        Write-Host "DEBUG: Raw WSL IPs = (wsl -d Ubuntu hostname -I)"
                         Write-Host "DEBUG: $WSL_IP = $WSL_IP"
 
                         # PowerShell CANNOT handle ${env:USER} — fix:
