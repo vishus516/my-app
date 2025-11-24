@@ -10,7 +10,7 @@ pipeline {
                         Write-Host "DEBUG: Jenkins $env:KEY = $env:KEY (masked)"
 
                         # Get WSL IP (Windows → WSL)
-                        $WSL_IP = (wsl hostname -I).Split(" ")[0]
+                        $WSL_IP = (wsl -d Ubuntu hostname -I).Split(" ")[0]
                         Write-Host "DEBUG: Raw WSL IPs = (wsl hostname -I)"
                         Write-Host "DEBUG: $WSL_IP = $WSL_IP"
 
