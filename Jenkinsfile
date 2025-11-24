@@ -11,7 +11,7 @@ pipeline {
                         # PowerShell CANNOT handle ${env:USER} — fix:
                         # Jenkins provides username in $env:USER, NOT ${env:USER}
                         $DestUser = $env:USER
-                        $Dest = "$DestUser@$WSL_IP:/home/vishu/auto-deploy/"
+                        $Dest = "$DestUser@$($WSL_IP):/home/vishu/auto-deploy/"
 
                         Write-Host "============================================"
                         Write-Host "Deploying to: $Dest"
