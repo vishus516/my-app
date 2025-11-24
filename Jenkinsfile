@@ -14,28 +14,22 @@ pipeline {
                         $Dest = "$DestUser@$($WSL_IP):/home/vishu/auto-deploy/"
 
                         Write-Host "============================================"
-                        Write-Host "Deploying to: $Dest"
-                        Write-Host "============================================"
+                    Write-Host "Deploying to WSL Ubuntu at $WSL_IP"
+                    Write-Host "Destination: $Dest"
+                    Write-Host "============================================"
 
-                        # Convert Windows key path to MSYS path for scp
-                        $KeyFile = $env:KEY
-                        if ($KeyFile -match '^[A-Z]:\\\\') {
-                            $drive = $KeyFile.Substring(0,1).ToLower()
-                            $rest = $KeyFile.Substring(2) -replace '\\\\','/'
-                            $KeyFile = "/$drive/$rest"
-                        }
+                    # Kill old script
+                    ssh -i "$env:KEY" -o StrictHostKeyChecking=no "${env:USER}@$WSL_IP" "pkill -f cpu_monitor.py || true"
 
-                        # Run SCP to WSL
-                        $cmd = "scp -i `"$KeyFile`" -o StrictHostKeyChecking=no -r * $Dest"
-                        Write-Host "Running: $cmd"
-                        cmd.exe /c $cmd
+                    # Copy new file (using $Dest to fix colon parsing)
+                    scp -i "$env:KEY" -o StrictHostKeyChecking=no cpu_monitor.py "$Dest"
 
-                        if ($LASTEXITCODE -ne 0) {
-                            Write-Error "SCP failed with exit code $LASTEXITCODE"
-                            exit $LASTEXITCODE
-                        } else {
-                            Write-Host "Deployment completed successfully."
-                        }
+                    # Start new version
+                    ssh -i "$env:KEY" -o StrictHostKeyChecking=no "${env:USER}@$WSL_IP" "nohup python3 /home/vishu/auto-deploy/cpu_monitor.py > /home/vishu/auto-deploy/cpu.log 2>&1 &"
+
+                    Write-Host "============================================"
+                    Write-Host "DEPLOYED SUCCESSFULLY TO UBUNTU WSL!"
+                    Write-Host "============================================"
                     '''
                 }
             }
