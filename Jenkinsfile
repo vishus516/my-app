@@ -28,17 +28,7 @@ pipeline {
                         $Dest = "$DestUser@$($WSL_IP):/home/vishu/auto-deploy/"
                         Write-Host "DEBUG: $Dest = $Dest"
 
-                        # tighten the temporary key file created by withCredentials
-                        $KeyFile = $env:KEY
-                        if (-not (Test-Path $KeyFile)) { Write-Error "Key not found: $KeyFile"; exit 1 }
-                        
-                        Write-Host "Fixing permissions on SSH key: $KeyFile"
-                        
-                        icacls $KeyFile /inheritance:r
-                        icacls $KeyFile /remove "BUILTIN\\Users" /C
-                        icacls $KeyFile /grant "NT AUTHORITY\\SYSTEM:F" "BUILTIN\\Administrators:F" "DESKTOP-33E717D\vishwaraj singh:R" /C
-                        
-
+                    
                         Write-Host "============================================"
                         Write-Host "Deploying to WSL Ubuntu at $WSL_IP"
                         Write-Host "Destination: $Dest"
