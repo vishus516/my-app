@@ -35,8 +35,8 @@ pipeline {
                         Write-Host "Fixing permissions on SSH key: $KeyFile"
                         
                         icacls $KeyFile /inheritance:r
-                        icacls $KeyFile /remove "BUILTIN\Users" /C
-                        icacls $KeyFile /grant "NT AUTHORITY\SYSTEM:F" "BUILTIN\Administrators:F" "DESKTOP-33E717D\vishwaraj singh:R" /C
+                        icacls $KeyFile /remove "BUILTIN\\Users" /C
+                        icacls $KeyFile /grant "NT AUTHORITY\\SYSTEM:F" "BUILTIN\\Administrators:F" "DESKTOP-33E717D\vishwaraj singh:R" /C
                         
 
                         Write-Host "============================================"
