@@ -8,15 +8,19 @@ pipeline {
                     # Get WSL IP using PowerShell (100% reliable)
                     $WSL_IP = (wsl hostname -I).Split(" ")[0]
 
+                    # Build full destination string to avoid parsing errors
+                    $DEST = "${env:USER}@$WSL_IP:/home/vishu/auto-deploy/"
+
                     Write-Host "============================================"
                     Write-Host "Deploying to WSL Ubuntu at $WSL_IP"
+                    Write-Host "Destination: $DEST"
                     Write-Host "============================================"
 
                     # Kill old script
-                    ssh -i "$env:KEY" -o StrictHostKeyChecking=no "${env:USER@$WSL_IP}" "pkill -f cpu_monitor.py || true"
+                    ssh -i "$env:KEY" -o StrictHostKeyChecking=no "${env:USER}@$WSL_IP" "pkill -f cpu_monitor.py || true"
 
-                    # Copy new file (fixed path parsing with ${})
-                    scp -i "$env:KEY" -o StrictHostKeyChecking=no cpu_monitor.py "${env:USER}@$WSL_IP:/home/vishu/auto-deploy/"
+                    # Copy new file (using $DEST to fix colon parsing)
+                    scp -i "$env:KEY" -o StrictHostKeyChecking=no cpu_monitor.py "$DEST"
 
                     # Start new version
                     ssh -i "$env:KEY" -o StrictHostKeyChecking=no "${env:USER}@$WSL_IP" "nohup python3 /home/vishu/auto-deploy/cpu_monitor.py > /home/vishu/auto-deploy/cpu.log 2>&1 &"
