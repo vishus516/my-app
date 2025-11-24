@@ -10,8 +10,10 @@ pipeline {
                         Write-Host "DEBUG: Jenkins $env:KEY = $env:KEY (masked)"
 
                         # Get WSL IP (Windows → WSL)
-                        $WSL_IP = (wsl -d Ubuntu hostname -I).Split(" ")[0]
-                        Write-Host "DEBUG: Raw WSL IPs = (wsl -d Ubuntu hostname -I)"
+                        $rawOutput = wsl -d Ubuntu hostname -I
+                        Write-Host "DEBUG: Raw WSL IPs = $rawOutput"
+                        $allIPs = $rawOutput.Split(" ")
+                        $WSL_IP = $allIPs[0]  # First IP is the NAT one (172.27.4.218)
                         Write-Host "DEBUG: $WSL_IP = $WSL_IP"
 
                         # PowerShell CANNOT handle ${env:USER} — fix:
