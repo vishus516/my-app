@@ -6,7 +6,7 @@ pipeline {
                 withCredentials([sshUserPrivateKey(credentialsId: 'ubuntu-key', keyFileVariable: 'KEY', usernameVariable: 'USER')]) {
                   powershell '''
                         # Get WSL IP (Windows → WSL)
-                        $WSL_IP = (wsl hostname -I).Split(" ")[0]
+                        $WSL_IP = (wsl hostname -i).Split(" ")[0]
 
                         # PowerShell CANNOT handle ${env:USER} — fix:
                         # Jenkins provides username in $env:USER, NOT ${env:USER}
