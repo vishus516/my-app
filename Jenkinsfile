@@ -29,14 +29,14 @@ pipeline {
                         Write-Host "DEBUG: $Dest = $Dest"
 
                         # tighten the temporary key file created by withCredentials
-                            ##$KeyFile = $env:KEY
-                            ##if (-not (Test-Path $KeyFile)) { Write-Error "Key not found: $KeyFile"; exit 1 }
+                            $KeyFile = $env:KEY
+                            if (-not (Test-Path $KeyFile)) { Write-Error "Key not found: $KeyFile"; exit 1 }
                             
-                            ##Write-Host "Fixing permissions on SSH key: $KeyFile"
+                            Write-Host "Fixing permissions on SSH key: $KeyFile"
                             
-                            ##icacls $KeyFile /inheritance:r
-                            ##icacls $KeyFile /remove "BUILTIN\\Users" /C
-                            ##icacls $KeyFile /grant "NT AUTHORITY\\SYSTEM:F" "BUILTIN\\Administrators:F" "DESKTOP-33E717D\\vishwaraj singh:R" /C
+                            icacls $KeyFile /inheritance:r
+                            icacls $KeyFile /remove "BUILTIN\\Users" /C
+                            icacls $KeyFile /grant "NT AUTHORITY\\SYSTEM:F" "BUILTIN\\Administrators:F" "DESKTOP-33E717D\\vishwaraj singh:R" /C
 
 
                     
@@ -46,9 +46,7 @@ pipeline {
                         Write-Host "============================================"
 
                         # Kill old script
-                        ssh -i "$env:KEY" -o StrictHostKeyChecking=no "$env:USER@$WSL_IP" 
-                        "1234"
-                        "pkill -f cpu_monitor.py || true"
+                        ssh -i "$env:KEY" -o StrictHostKeyChecking=no "$env:USER@$WSL_IP" "pkill -f cpu_monitor.py || true"
 
                         # Copy new file (using $Dest to fix colon parsing)
                         scp -i "$env:KEY" -o StrictHostKeyChecking=no cpu_monitor.py "$Dest"
