@@ -46,7 +46,9 @@ pipeline {
                         Write-Host "============================================"
 
                         # Kill old script
-                        ssh -i "$env:KEY" -o StrictHostKeyChecking=no "$env:USER@$WSL_IP" "pkill -f cpu_monitor.py || true"
+                        ssh -i "$env:KEY" -o StrictHostKeyChecking=no "$env:USER@$WSL_IP" 
+                        "1234"
+                        "pkill -f cpu_monitor.py || true"
 
                         # Copy new file (using $Dest to fix colon parsing)
                         scp -i "$env:KEY" -o StrictHostKeyChecking=no cpu_monitor.py "$Dest"
