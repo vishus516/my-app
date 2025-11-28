@@ -3,6 +3,7 @@
 import time
 import psutil
 import os
+import unicodedata
 from datetime import datetime
 
 THRESHOLD = 80.0   # percent
