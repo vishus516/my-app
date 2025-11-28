@@ -46,12 +46,17 @@ pipeline {
                         Write-Host "============================================"
 
                         # Kill old script
-                        ssh -i "$env:KEY" -o StrictHostKeyChecking=no "$env:USER@$WSL_IP" "pkill -f Monitor.py || true"
 
+                        Write-Host "Killing Old Process"
+                        ssh -i "$env:KEY" -o StrictHostKeyChecking=no "$env:USER@$WSL_IP" "pkill -f Monitor.py || true"
+                        Write-Host "Killing Old Process Done"
+
+                        Write-Host "Copying New File"
                         # Copy new file (using $Dest to fix colon parsing)
                         scp -i "$env:KEY" -o StrictHostKeyChecking=no Monitor.py "$Dest"
 
                         # Start new version
+                        Write-Host "Running New File"
                         ssh -i "$env:KEY" -o StrictHostKeyChecking=no "$env:USER@$WSL_IP" "nohup python3 /home/vishu/auto-deploy/Monitor.py > /home/vishu/auto-deploy/cpu.log 2>&1 &"
 
                         Write-Host "============================================"
